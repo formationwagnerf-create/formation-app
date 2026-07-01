@@ -1,46 +1,30 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function LoginForm() {
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setError("");
     setLoading(true);
     const supabase = createSupabaseBrowserClient();
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (authError || !data.user) { setError("Identifiants incorrects."); return; }
-
-    // Lit le rôle depuis les métadonnées du token (pas de requête BDD nécessaire)
-    const role = data.user.user_metadata?.role;
-    
-    const next = searchParams.get("next");
-    if (next) {
-      window.location.href = next;
-    } else if (role === "admin") {
-      window.location.href = "/admin";
+    if (authError || !data.user) {
+      setLoading(false);
+      setError("Identifiants incorrects.");
+      return;
+    }
+    const { data: profile } = await supabase.from("users").select("role").eq("id", data.user.id).single();
+    if (profile?.role === "admin") {
+      window.location.replace("/admin");
     } else {
-      // Essaie quand même de lire depuis la table users
-      const { data: profile } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", data.user.id)
-        .single();
-      
-      if (profile?.role === "admin") {
-        window.location.href = "/admin";
-      } else {
-        window.location.href = "/espace";
-      }
+      window.location.replace("/espace");
     }
   }
 
