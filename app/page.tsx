@@ -45,7 +45,8 @@ export default function HomePage() {
           var ctx = canvas.getContext('2d');
           var ramps = ['#378ADD','#1D9E75','#D85A30','#D4537E','#7F77DD'];
           function resize(){ canvas.width=canvas.parentElement.offsetWidth; canvas.height=canvas.parentElement.offsetHeight; }
-          setTimeout(resize, 100);
+          window.addEventListener('load', resize);
+setTimeout(resize, 500);
           window.addEventListener('resize', resize);
           var nodes=[];
           for(var i=0;i<46;i++){
