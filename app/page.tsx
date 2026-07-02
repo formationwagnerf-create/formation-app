@@ -21,7 +21,7 @@ export default function HomePage() {
       </nav>
 
       <div style={{ position: "relative", width: "100%", height: "380px", overflow: "hidden", background: "#050b14" }}>
-        <canvas id="neuralCanvas" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}></canvas>
+        <canvas id="neuralCanvas" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}></canvas>
         <div style={{ position: "relative", zIndex: 2, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 2rem", maxWidth: "560px" }}>
           <span style={{ display: "inline-block", fontSize: "11px", color: "#bcd8ff", background: "rgba(55,138,221,0.18)", padding: "4px 10px", borderRadius: "6px", marginBottom: "14px", width: "fit-content" }}>Formateur indépendant</span>
           <h1 style={{ fontSize: "30px", fontWeight: 500, lineHeight: 1.25, margin: "0 0 8px", color: "#f4f7fb" }}>
