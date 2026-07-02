@@ -43,8 +43,8 @@ export default function HomePage() {
           const dist = Math.sqrt(dx*dx + dy*dy);
           if (dist < 130) {
             ctx.strokeStyle = a.color;
-            ctx.globalAlpha = (1 - dist / 130) * 0.35;
-            ctx.lineWidth = 0.6;
+            ctx.globalAlpha = (1 - dist / 130) * 0.8;
+            ctx.lineWidth = 1.2;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
