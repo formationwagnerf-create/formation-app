@@ -1,4 +1,74 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 export default function HomePage() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    const ramps = ["#378ADD","#1D9E75","#D85A30","#D4537E","#7F77DD"];
+
+    function resize() {
+      canvas!.width = canvas!.offsetWidth;
+      canvas!.height = canvas!.offsetHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const nodes = Array.from({ length: 46 }, () => ({
+      x: Math.random() * canvas!.width,
+      y: Math.random() * canvas!.height,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      color: ramps[Math.floor(Math.random() * ramps.length)],
+      r: 3 + Math.random() * 4,
+    }));
+
+    let animId: number;
+    function step() {
+      ctx.fillStyle = "#050b14";
+      ctx.fillRect(0, 0, canvas!.width, canvas!.height);
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > canvas!.width) n.vx *= -1;
+        if (n.y < 0 || n.y > canvas!.height) n.vy *= -1;
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < 130) {
+            ctx.strokeStyle = a.color;
+            ctx.globalAlpha = (1 - dist / 130) * 0.35;
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.globalAlpha = 0.85;
+      for (const n of nodes) {
+        ctx.fillStyle = n.color;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      animId = requestAnimationFrame(step);
+    }
+    step();
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
   return (
     <div style={{ fontFamily: "system-ui, sans-serif" }}>
       <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", borderBottom: "0.5px solid #e5e5e5" }}>
@@ -9,7 +79,7 @@ export default function HomePage() {
             <p style={{ margin: 0, fontSize: "11px", color: "#666" }}>Formation professionnelle</p>
           </div>
         </div>
-        <div style={{ display: "flex", gap: "18px", fontSize: "13px", color: "#666" }}>
+        <div style={{ display: "flex", gap: "18px", fontSize: "13px" }}>
           <a href="/formations" style={{ color: "#666", textDecoration: "none" }}>Formations</a>
           <a href="#" style={{ color: "#666", textDecoration: "none" }}>À propos</a>
           <a href="#" style={{ color: "#666", textDecoration: "none" }}>Contact</a>
@@ -21,7 +91,7 @@ export default function HomePage() {
       </nav>
 
       <div style={{ position: "relative", width: "100%", height: "380px", overflow: "hidden", background: "#050b14" }}>
-        <canvas id="neuralCanvas" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}></canvas>
+        <canvas ref={canvasRef} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }} />
         <div style={{ position: "relative", zIndex: 2, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 2rem", maxWidth: "560px" }}>
           <span style={{ display: "inline-block", fontSize: "11px", color: "#bcd8ff", background: "rgba(55,138,221,0.18)", padding: "4px 10px", borderRadius: "6px", marginBottom: "14px", width: "fit-content" }}>Formateur indépendant</span>
           <h1 style={{ fontSize: "30px", fontWeight: 500, lineHeight: 1.25, margin: "0 0 8px", color: "#f4f7fb" }}>
@@ -37,72 +107,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-
-      <script dangerouslySetInnerHTML={{ __html: `
-        (function(){
-          var canvas = document.getElementById('neuralCanvas');
-          if (!canvas) return;
-          var ctx = canvas.getContext('2d');
-          var ramps = ['#378ADD','#1D9E75','#D85A30','#D4537E','#7F77DD'];
-          function resize(){ 
-  var parent = canvas.parentElement;
-  canvas.width = parent.getBoundingClientRect().width; 
-  canvas.height = parent.getBoundingClientRect().height; 
-}
-window.addEventListener('load', function(){ resize(); setTimeout(resize, 300); });
-setTimeout(resize, 500);
-          window.addEventListener('resize', resize);
-          var nodes=[];
-          for(var i=0;i<46;i++){
-            nodes.push({
-              x:Math.random()*canvas.width,
-              y:Math.random()*canvas.height,
-              vx:(Math.random()-0.5)*0.25,
-              vy:(Math.random()-0.5)*0.25,
-              color:ramps[Math.floor(Math.random()*ramps.length)],
-              r:3+Math.random()*4
-            });
-          }
-          function step(){
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle='#050b14';
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            for(var i=0;i<nodes.length;i++){
-              var n=nodes[i];
-              n.x+=n.vx; n.y+=n.vy;
-              if(n.x<0||n.x>canvas.width) n.vx*=-1;
-              if(n.y<0||n.y>canvas.height) n.vy*=-1;
-            }
-            for(var i=0;i<nodes.length;i++){
-              for(var j=i+1;j<nodes.length;j++){
-                var a=nodes[i],b=nodes[j];
-                var dx=a.x-b.x,dy=a.y-b.y;
-                var dist=Math.sqrt(dx*dx+dy*dy);
-                if(dist<130){
-                  ctx.strokeStyle=a.color;
-                  ctx.globalAlpha=(1-dist/130)*0.35;
-                  ctx.lineWidth=0.6;
-                  ctx.beginPath();
-                  ctx.moveTo(a.x,a.y);
-                  ctx.lineTo(b.x,b.y);
-                  ctx.stroke();
-                }
-              }
-            }
-            ctx.globalAlpha=0.85;
-            for(var i=0;i<nodes.length;i++){
-              var n=nodes[i];
-              ctx.fillStyle=n.color;
-              ctx.beginPath();
-              ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
-              ctx.fill();
-            }
-            ctx.globalAlpha=1;
-            requestAnimationFrame(step);
-          }
-          step();
-        })();
-      `}} />
 
       <div style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto" }}>
         <h2 style={{ fontSize: "18px", fontWeight: 500, margin: "0 0 14px" }}>Nos formations phares</h2>
