@@ -41,7 +41,7 @@ export default function HomePage() {
           const a = nodes[i], b = nodes[j];
           const dx = a.x - b.x, dy = a.y - b.y;
           const dist = Math.sqrt(dx*dx + dy*dy);
-          if (dist < 130) {
+          if (dist < 300) {
             ctx.strokeStyle = a.color;
             ctx.globalAlpha = (1 - dist / 130) * 0.8;
             ctx.lineWidth = 1.2;
